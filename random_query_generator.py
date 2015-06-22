@@ -1,7 +1,7 @@
 __author__ = 'Nispand'
 
 import random
-
+import time
 def get_lang():
     Lang = ["English","Spanish"]
     id = random.randint(0,1)
@@ -58,21 +58,30 @@ print get_sentence_sort_order()
 print get_category_code()
 """
 
+def setquery():
+    fields = ["Lang","segment_id","contract_id","plan_id","contract_year","tier_level","tier_type_desc","sentences_sort_order","category_code"]
+    query = "Select "
+    no_f = random.randint(1,9)
+    print no_f
+    if no_f == 9 :
+        query = query + "*"
+    elif no_f == 1:
+        f_id = random.randint(0,8)
+        print f_id
+        query = query + fields[f_id]
+    else :
+        f_id = random.sample(range(0,no_f),no_f)
+        for i in range(0,no_f-1):
+            query = query + fields[f_id[i]] + ","
+        query = query + fields[f_id[i+1]]
 
-fields = ["Lang","segment_id","contract_id","plan_id","contract_year","tier_level","tier_type_desc","sentences_sort_order","category_code"]
-query = "Select "
-no_f = random.randint(1,9)
-print no_f
-if no_f == 9 :
-    query = query + "*"
-elif no_f == 1:
-    f_id = random.randint(1,9)
-    query = query + fields[f_id]
-else :
-    f_id = random.sample(range(0,no_f),no_f)
-    for i in range(0,no_f-1):
-        query = query + fields[f_id[i]] + ","
-    query = query + fields[f_id[i+1]]
-
-query = query + " from mytable"
-print query
+    query = query + " from mytable LIMIT "
+    return query
+count = 1
+#start_time = time.time()
+for j in range(1,20001):
+    print "query number:" + str(count)
+    print setquery()
+    count+=1
+#end_time = time.time()-start_time
+#print str(end_time) + "seconds"

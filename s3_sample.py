@@ -21,6 +21,8 @@ import csv
 import sys
 import os
 import MySQLdb
+import random
+from random_query_generator import setquery
 # Instantiate a new client for Amazon Simple Storage Service (S3). With no
 # parameters or configuration, the AWS SDK for Python (Boto) will look for
 # access keys in these environment variables:
@@ -68,6 +70,7 @@ def insert_in_table(crsr):
         for row in csv_data:
             print "Inserting into table"
             query = "INSERT INTO mytable(Lang,segment_id,contract_id,plan_id,contract_year,tier_level,tier_type_desc,sentences_sort_order,category_code) VALUES ('"+str(row[0])+"',"+row[1]+",'"+row[2]+"',"+row[3]+","+row[4]+","+row[5]+",'"+row[6]+"',"+row[7]+","+row[8]+");"
+	    print query
             crsr.execute(query)
     time_to_ins = time.time() - start_time_dbi
     print "Time takne to insert data into Database..." + str(time_to_ins) + "seconds"
@@ -140,6 +143,17 @@ raw_input("Enter a key to delete the bucket")
 print "Deleting the object."
 k.delete()
 result.execute("commit")
+qrytoexec = setquery()
+lim = random.randint(200,800)
+qrytoexec = qrytoexec + str(lim)
+start_time_fqre = time.time()
+for i in range(1,1000):
+    data = result.execute(qrytoexec)
+    for row in data:
+        print row
+
+end_time = time.time() -start_time_fqre
+print "time taken to execute 1000" + str(end_time)
 # Now that the bucket is empty, we can delete it.
 print "Deleting the bucket."
 s3.delete_bucket(bucket_name)
