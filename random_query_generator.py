@@ -60,16 +60,17 @@ print get_category_code()
 
 def setquery(noq):
     qrs = []
+    lim = random.randint(200,800)
     while len(qrs) < noq:
         fields = ["Lang","segment_id","contract_id","plan_id","contract_year","tier_level","tier_type_desc","sentences_sort_order","category_code"]
         query = "Select "
         no_f = random.randint(1,9)
-        print no_f
+        #print no_f
         if no_f == 9 :
             query = query + "*"
         elif no_f == 1:
             f_id = random.randint(0,8)
-            print f_id
+            #print f_id
             query = query + fields[f_id]
         else :
             f_id = random.sample(range(0,no_f),no_f)
@@ -77,10 +78,11 @@ def setquery(noq):
                 query = query + fields[f_id[i]] + ","
             query = query + fields[f_id[i+1]]
 
-        query = query + " from mytable LIMIT "
+        query = query + " from mytable LIMIT " + str(lim)
         if query not in qrs:
             qrs.append(query)
     return qrs
+
 def gen_rand_query(noq):
     count = 1
     #start_time = time.time()
@@ -92,7 +94,3 @@ def gen_rand_query(noq):
         #print str(end_time) + "seconds"
         return query
 
-qrs = setquery(5000)
-print len(qrs)
-for i in range(0,len(qrs)):
-    print qrs[i]

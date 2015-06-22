@@ -23,6 +23,7 @@ import os
 import MySQLdb
 import random
 import memcache
+import hashlib
 from random_query_generator import setquery
 # Instantiate a new client for Amazon Simple Storage Service (S3). With no
 # parameters or configuration, the AWS SDK for Python (Boto) will look for
@@ -96,8 +97,76 @@ def get_file():
 
     return "file downloaded successfully"
 
+def qry_exec(flag):
+    lim = random.randint(200,800)
+    raw_input("Enter key to Execute 1000 queries")
+    start_time_1000 = time.time()
+    try:
+        qrytoexec = setquery(1000)
+        for i in range(0,len(qrytoexec)):
+            qrytoexec[i] = qrytoexec[i] + str(lim)
+            if flag == 0:
+                data1 = result.execute(qrytoexec[i])
+            elif flag == 1:
+                    hash_obj = hashlib.md5(qrytoexec[i].encode())
+                    hash_obj = hash_obj.hexdigest()
+                    data1 = s.get(hash_obj)
+                    if not data1 :
+                        data1 = result.execute(qrytoexec[i])
+
+            """ for row in data:
+            print row"""
+    except Exception as e:
+        print "No result for this one"
+
+    end_time = time.time()-start_time_1000
+    print "time taken to execute 1000 queries::" + str(end_time)
+
+    raw_input("Enter key to Execute 5000 queries")
+    start_time_5000 = time.time()
+    try:
+        qrytoexec5 = setquery(5000)
+        for i in range(0,len(qrytoexec5)):
+            qrytoexec5[i] = qrytoexec5[i] + str(lim)
+            if flag == 0:
+                data5 = result.execute(qrytoexec5[i])
+            elif flag == 1:
+                    hash_obj = hashlib.md5(qrytoexec5[i].encode())
+                    hash_obj = hash_obj.hexdigest()
+                    data5 = s.get(hash_obj)
+                    if not data5 :
+                        data5 = result.execute(qrytoexec5[i])
+
+    except Exception as e:
+            print "No result for this one"
+
+
+    end_time = time.time()-start_time_5000
+    print "time taken to execute 5000 queries::" + str(end_time)
+
+    raw_input("Enter key to Execute 20000 queries")
+    start_time_20000 = time.time()
+    try:
+        qrytoexec20 = setquery(1000)
+        for i in range(0,len(qrytoexec20)):
+            qrytoexec20[i] = qrytoexec20[i] + str(lim)
+            if flag == 0:
+                data20 = result.execute(qrytoexec20[i])
+            elif flag == 1:
+                    hash_obj = hashlib.md5(qrytoexec[i].encode())
+                    hash_obj = hash_obj.hexdigest()
+                    data20 = s.get(hash_obj)
+                    if not data20 :
+                        data20 = result.execute(qrytoexec[i])
+    except Exception as e:
+        print "No result for this one"
+
+    end_time = time.time()-start_time_20000
+    print "time taken to execute 20000 queries::" + str(end_time)
+    return "Data fetched"
+
 s3 = boto.connect_s3()
-s = memcache.Client(["nispand.6czzrp.cfg.usw2.cache.amazonaws.com:11211"])
+
 # Everything uploaded to Amazon S3 must belong to a bucket. These buckets are
 # in the global namespace, and must have a unique name.
 #
@@ -107,6 +176,8 @@ bucket_name = "assignment4bucket1"
 print "Creating new bucket with name: " + bucket_name
 bucket = s3.create_bucket(bucket_name)
 
+#connect to Elastic Cache
+s = memcache.Client(["nispand.6czzrp.cfg.usw2.cache.amazonaws.com:11211"])
 # Files in Amazon S3 are called "objects" and are stored in buckets. A specific
 # object is referred to by its key (i.e., name) and holds data. Here, we create
 # a new object with the key "python_sample_key.txt" and content "Hello World!".
@@ -148,54 +219,12 @@ raw_input("Enter a key to delete the bucket")
 print "Deleting the object."
 k.delete()
 result.execute("commit")
-lim = random.randint(200,800)
-raw_input("Enter key to Execute 1000 queries")
-start_time_1000 = time.time()
-try:
-    qrytoexec = setquery(1000)
-    for i in range(0,len(qrytoexec)):
-        qrytoexec[i] = qrytoexec[i] + str(lim)
-        data = result.execute(qrytoexec[i])
-        """ for row in data:
-        print row"""
-except Exception as e:
-    print "No result for this one"
-
-end_time = time.time()-start_time_1000
-print "time taken to execute 1000 queries::" + str(end_time)
-
-raw_input("Enter key to Execute 5000 queries")
-start_time_5000 = time.time()
-try:
-    qrytoexec5 = setquery(5000)
-    for i in range(0,len(qrytoexec)):
-        qrytoexec5[i] = qrytoexec5[i] + str(lim)
-        data = result.execute(qrytoexec5[i])
-        """ for row in data:
-            print row"""
-
-except Exception as e:
-        print "No result for this one"
-
-
-end_time = time.time()-start_time_5000
-print "time taken to execute 5000 queries::" + str(end_time)
-
-raw_input("Enter key to Execute 20000 queries")
-start_time_20000 = time.time()
-try:
-    qrytoexec20 = setquery(1000)
-    for i in range(0,len(qrytoexec20)):
-        qrytoexec20[i] = qrytoexec20[i] + str(lim)
-        data = result.execute(qrytoexec20[i])
-        """ for row in data:
-            print row"""
-except Exception as e:
-    print "No result for this one"
-
-end_time = time.time()-start_time_20000
-print "time taken to execute 20000 queries::" + str(end_time)
-
+raw_input("Enter any key to Fetch Query Using EC Memcache")
+ans = qry_exec(1)
+print ans
+raw_input("Enter any key to Fetch Query Without EX Memcache")
+ans = qry_exec(0)
+print ans
 # Now that the bucket is empty, we can delete it.
 print "Deleting the bucket."
 s3.delete_bucket(bucket_name)
